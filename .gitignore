@@ -1,0 +1,9 @@
+*.settings
+*.classpath
+*.project
+*.project
+*/target
+*/scriptBin
+
+
+*/target
