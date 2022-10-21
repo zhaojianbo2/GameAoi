@@ -1,45 +1,29 @@
-package game;
+package game.scene;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import game.scene.Area;
-import game.scene.Scene;
-import game.scene.SceneConst;
 import game.scene.obj.Position;
 import game.scene.obj.SceneObject;
 
 /**
- * AOI管理器
+ * AOI管理器 处理场景视野区域相关逻辑
  * 
  * @author WinkeyZhao
  *
  */
 public class AoiManager {
+    private static Logger LOG = LoggerFactory.getLogger(AoiManager.class);
 
-    private static Logger LOG = LogManager.getLogger(AoiManager.class);
-
-    private Map<Integer, Area> areaMap = new HashMap<>();
-
-    /**
-     * 场景对象开始走动
-     * 
-     * @param sceneObject
-     * @param roads
-     */
-    public void sceneObjRun(SceneObject sceneObject, List<Position> roads) {
-	Position sourcePosition = sceneObject.position;
-
-    }
+    private AoiManager() {
+    };
 
     /**
      * 处理更新场景对象坐标,如果区域有变化,继续处理区域变化逻辑
+     * 
      * @param obj
      * @param targetPos
      */
@@ -48,7 +32,7 @@ public class AoiManager {
 	Position sourcePosition = obj.position;
 	obj.position = targetPos;
 	// 是否区域改变
-	if (isSameArea(sourcePosition, targetPos)) {
+	if (!isSameArea(sourcePosition, targetPos)) {
 	    changeArea(obj, sourcePosition);
 	}
 
@@ -68,21 +52,25 @@ public class AoiManager {
 	// 目标区域添加对象
 	Area targetArea = getArea(sceneObject.position, scene);
 	targetArea.addMapObj(sceneObject);
-	
-	//源区域AOI
+
+	// 源区域AOI
 	Set<Area> sourceAoi = sourceArea.getRoundAreas(scene);
-	//目标区域AOI
+	// 目标区域AOI
 	Set<Area> targetAoi = targetArea.getRoundAreas(scene);
 	Set<Area> disappearAreas = new HashSet<>(sourceAoi);
 	Set<Area> appearAreas = new HashSet<>(targetAoi);
-	disappearAreas.removeAll(appearAreas);//已经消失的视野区域
-	appearAreas.removeAll(disappearAreas);//新增的视野区域
-	
-	//TODO 通知disappearAreas的玩家 sceneObject消失
-	//TODO 通知 appearAreas的玩家  sceneObject出现
-	
-	//TODO 通知 sceneObject  展现appearAreas 中所有对象
-	//TODO 通知 sceneObject  移除disappearAreas 中所有对象
+	disappearAreas.removeAll(appearAreas);// 已经消失的视野区域
+	appearAreas.removeAll(disappearAreas);// 新增的视野区域
+
+	// TODO 通知disappearAreas的玩家 sceneObject消失
+	// TODO 通知 appearAreas的玩家 sceneObject出现
+
+	// TODO 通知 sceneObject 展现appearAreas 中所有对象
+	// TODO 通知 sceneObject 移除disappearAreas 中所有对象
+    }
+
+    public void stopRunning(SceneObject sceneObj) {
+	// TODO 广播一下
     }
 
     /**
@@ -119,7 +107,7 @@ public class AoiManager {
      * @param scene
      * @return
      */
-    private Area getArea(Position position, Scene scene) {
+    public Area getArea(Position position, Scene scene) {
 	int areaId = getAreaId(position);
 	Area area = scene.areas.get(areaId);
 	if (area == null && areaId > 0) {
@@ -140,8 +128,16 @@ public class AoiManager {
      * @return
      */
     private int getAreaId(Position position) {
-	int areaX = (int) (position.x / SceneConst.AREA_WIDTH);
-	int areaY = (int) (position.y / SceneConst.AREA_HEIGHT);
+	int areaX = (int) (position.x / SceneConst.AREA_WIDTH) + 1;
+	int areaY = (int) (position.y / SceneConst.AREA_HEIGHT) + 1;
 	return areaX * 1000 + areaY;// 得到一个区域唯一的id
+    }
+
+    public static AoiManager getIns() {
+	return InstanceHolder.manager;
+    }
+
+    private static class InstanceHolder {
+	private static AoiManager manager = new AoiManager();
     }
 }

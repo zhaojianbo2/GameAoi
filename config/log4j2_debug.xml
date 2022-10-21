@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+  <Appenders>
+    <!--控制台-->
+    <Console name="Console" target="SYSTEM_OUT">
+      <!--<PatternLayout pattern="%d{YYYY-MM-dd HH:mm:ss.SSS} %-5level %msg - [%t]%logger{10}%n"/>-->
+      <PatternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss.SSS} %p] %m - [%t][%c]%n"/>
+    </Console>
+    <!--server日志打印-->
+    <RollingFile name="RollingFile" fileName="logs/gameserver.log"
+      filePattern="logs/serverLogs_%d{yyyy-MM-dd}_%i.log">
+      <PatternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss.SSS} %p][%c{1}]%m - [%t]%n"/>
+      <SizeBasedTriggeringPolicy size="50MB"/>
+      <DefaultRolloverStrategy max="20"/>
+      <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+    </RollingFile>
+    <RollingFile name="ErrorRollingFile" fileName="logs/error/error.log"
+      filePattern="logs/error/error_%d{yyyy-MM-dd}_%i.log">
+      <PatternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss.SSS} %p][%c{1}]%m - [%t]%n"/>
+      <SizeBasedTriggeringPolicy size="50MB"/>
+      <DefaultRolloverStrategy max="20"/>
+      <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+    </RollingFile>
+    <RollingFile name="WarnRollingFile" fileName="logs/warn/warn.log"
+      filePattern="logs/warn/warn_%d{yyyy-MM-dd}_%i.log">
+      <PatternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss.SSS} %p][%c{1}]%m - [%t]%n"/>
+      <SizeBasedTriggeringPolicy size="50MB"/>
+      <DefaultRolloverStrategy max="20"/>
+      <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
+    </RollingFile>
+
+  </Appenders>
+
+  <Loggers>
+    <!-- 级别顺序（低到高）：TRACE < DEBUG < INFO < WARN < ERROR < FATAL -->
+    <Root level="debug">
+      <Appender-ref ref="Console"/>
+      <Appender-ref ref="RollingFile"/>
+      <Appender-ref ref="WarnRollingFile"/>
+      <Appender-ref ref="ErrorRollingFile"/>
+    </Root>
+
+    <!--debug中 框架打印error级别以上-->
+    <logger name="io.netty" level="INFO" additivity="false">
+      <Appender-ref ref="Console"/>
+      <Appender-ref ref="RollingFile"/>
+      <Appender-ref ref="WarnRollingFile"/>
+      <Appender-ref ref="ErrorRollingFile"/>
+    </logger>
+    <logger name="org.mongodb" level="ERROR" additivity="false">
+      <Appender-ref ref="Console"/>
+      <Appender-ref ref="RollingFile"/>
+      <Appender-ref ref="WarnRollingFile"/>
+      <Appender-ref ref="ErrorRollingFile"/>
+    </logger>
+    <logger name="org.quartz" level="ERROR" additivity="false">
+      <Appender-ref ref="Console"/>
+      <Appender-ref ref="RollingFile"/>
+      <Appender-ref ref="WarnRollingFile"/>
+      <Appender-ref ref="ErrorRollingFile"/>
+    </logger>
+  </Loggers>
+</Configuration>

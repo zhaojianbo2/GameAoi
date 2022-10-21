@@ -12,6 +12,7 @@ import game.scene.obj.SceneObject;
 
 /**
  * 场景
+ * 
  * @author WinkeyZhao
  *
  */
@@ -33,13 +34,22 @@ public class Scene {
 	this.areaWidthCount = (int) Math.ceil(1.0 * mapWidth / SceneConst.AREA_WIDTH);
 	this.areaHeightCount = (int) Math.ceil(1.0 * mapHeight / SceneConst.AREA_HEIGHT);
     }
-    
+
+    public void addSceneObj(SceneObject sceneObj) {
+	objsTable.put(sceneObj.sceneObjType, sceneObj.id, sceneObj);
+    }
+
+    public void addRunObj(SceneObject sceneObj) {
+	runObjsTable.put(sceneObj.sceneObjType, sceneObj.id, sceneObj);
+    }
+
     /**
      * 根据类型获取地图中的场景对象
+     * 
      * @param type
      * @return
      */
-    public Collection<SceneObject> getMapRunObjs(){
-    	return runObjsTable.values();
+    public Collection<SceneObject> getMapRunObjs() {
+	return runObjsTable.values();
     }
 }

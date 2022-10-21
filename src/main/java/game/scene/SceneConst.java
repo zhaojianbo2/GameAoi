@@ -21,4 +21,9 @@ public class SceneConst {
      * 区域高度
      */
     public static int AREA_HEIGHT = HEIGHT / DEFAULT_AOI_Diameter;
+    
+    /**
+     * 移动速度
+     */
+    public static int MOVE_SPEED = 100;
 }

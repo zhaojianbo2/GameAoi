@@ -17,6 +17,8 @@ public abstract class SceneObject {
     public SceneObjType sceneObjType;
     //对象当前所在区域
     public Area currentArea;
+    //上次跑动时间戳
+    public long preStepTime;
     //跑动路径
     public List<Position> runningRoads = new ArrayList<>();
 }

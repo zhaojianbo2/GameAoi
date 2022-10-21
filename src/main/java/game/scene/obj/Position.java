@@ -2,6 +2,11 @@ package game.scene.obj;
 
 public class Position {
 
-    public short x;
-    public short y;
+    public int x;
+    public int y;
+    public Position(int x, int y) {
+	this.x = x;
+	this.y = y;
+    }
+    
 }
