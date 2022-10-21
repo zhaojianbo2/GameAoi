@@ -2,8 +2,6 @@
 *.classpath
 *.project
 *.project
-*/target
+*target
 */scriptBin
-
-
-*/target
+/target
