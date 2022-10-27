@@ -1,4 +1,4 @@
-package game.scene;
+package game.scene.ninegrid;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,13 +10,14 @@ import java.util.Set;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 
+import game.scene.SceneConst;
 import game.scene.obj.Monster;
 import game.scene.obj.Player;
 import game.scene.obj.SceneObjType;
 import game.scene.obj.SceneObject;
 
 /**
- * 区域,即灯塔所能影响的范围
+ * 区域,灯塔的基本单位
  * 
  * @author WinkeyZhao
  *
@@ -24,9 +25,13 @@ import game.scene.obj.SceneObject;
  */
 public class Area {
 
+    // 区域id 格局x,y值生成 作为区域map的key
     public int areaId;
+    // 区域内的场景对象
     private Table<SceneObjType, Long, SceneObject> objsTable = HashBasedTable.create();
+    // 观察者区域
     private Set<Area> roundAreas;
+
     private final Object lockHelper = new Object();
 
     public Area(int areaId) {
@@ -34,18 +39,15 @@ public class Area {
     }
 
     public void addMapObj(SceneObject obj) {
-	obj.currentArea = this;
 	objsTable.put(obj.sceneObjType, obj.id, obj);
     }
 
     public boolean removeMapObj(SceneObject obj) {
 	SceneObject temp = objsTable.remove(obj.sceneObjType, obj.id);
-	if (temp != null) {
-	    obj.currentArea = null;
-	}
 	return temp != null;
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends SceneObject> List<T> getMapObjs() {
 	List<SceneObject> objs = new ArrayList<>();
 	for (SceneObjType type : objsTable.rowKeySet()) {
@@ -54,10 +56,12 @@ public class Area {
 	return (List<T>) objs;
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends SceneObject> Collection<T> getMapObjs(SceneObjType type) {
 	return (Collection<T>) objsTable.row(type).values();
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends SceneObject> Map<Long, T> getMapKeyObjs(SceneObjType type) {
 	return (Map<Long, T>) objsTable.row(type);
     }
@@ -79,11 +83,18 @@ public class Area {
      * @param round
      * @return
      */
-    public Set<Area> getRoundAreas(Scene scene) {
+    public Set<Area> getRoundAreas(TowerScene scene) {
 	return getRoundAreas(true, scene);
     }
 
-    public Set<Area> getRoundAreas(boolean init, Scene scene) {
+    /**
+     * 获取周围区域,懒加载
+     * 
+     * @param init
+     * @param scene
+     * @return
+     */
+    public Set<Area> getRoundAreas(boolean init, TowerScene scene) {
 	if (init && roundAreas == null) {
 	    synchronized (lockHelper) {
 		if (roundAreas == null) {
@@ -95,14 +106,14 @@ public class Area {
 	return roundAreas;
     }
 
-    private void initRoundAreas(Scene scene) {
-	int aoiDiameter = scene.aoiDiameter;
+    private void initRoundAreas(TowerScene scene) {
+	int aoiDiameter = SceneConst.DEFAULT_AOI_Diameter;
 	int radius = aoiDiameter / 2;
 	int areaX = areaId / 1000;
 	int areaY = areaId % 1000;
 	int startX = areaX - radius;
 	int startY = areaY - radius;
-	
+
 	int maxWidth = scene.areaWidthCount;
 	int maxHeight = scene.areaHeightCount;
 	for (int i = 0; i < aoiDiameter; i++) {
@@ -116,10 +127,7 @@ public class Area {
 		    continue;
 		}
 		int tempAreaId = temAreaX * 1000 + temAreaY;
-		Area area = scene.areas.get(tempAreaId);
-		if (area == null) {
-		    area = new Area(tempAreaId);
-		}
+		Area area = scene.getArea(tempAreaId);
 		roundAreas.add(area);
 	    }
 	}

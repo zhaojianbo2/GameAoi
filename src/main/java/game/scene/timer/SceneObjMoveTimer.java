@@ -3,9 +3,9 @@ package game.scene.timer;
 import java.util.Iterator;
 import java.util.List;
 
-import game.scene.AoiManager;
-import game.scene.Scene;
+import game.scene.AbstractScene;
 import game.scene.SceneConst;
+import game.scene.SceneManager;
 import game.scene.obj.Position;
 import game.scene.obj.SceneObject;
 import game.scene.util.Utils;
@@ -18,9 +18,10 @@ import game.scene.util.Utils;
  *
  */
 public class SceneObjMoveTimer implements Runnable {
-    private Scene scene;
+    // timer服务的场景
+    private AbstractScene scene;
 
-    public SceneObjMoveTimer(Scene scene) {
+    public SceneObjMoveTimer(AbstractScene scene) {
 	this.scene = scene;
     }
 
@@ -61,9 +62,9 @@ public class SceneObjMoveTimer implements Runnable {
 
 	    // 当前的最新位置点
 	    Position currentPosition = Utils.countPosition(sceneObj.position, nextPosition, moveDis);
-	    AoiManager.getIns().sceneObjPositionUp(sceneObj, currentPosition);
+	    scene.sceneObjPositionUp(sceneObj, currentPosition);
 	    if (roads.isEmpty()) {
-		AoiManager.getIns().stopRunning(sceneObj);
+		SceneManager.getIns().stopRunning(sceneObj);
 	    }
 	}
 

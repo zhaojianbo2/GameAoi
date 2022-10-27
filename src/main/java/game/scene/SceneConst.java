@@ -10,15 +10,15 @@ public class SceneConst {
      */
     public static final int HEIGHT = 1100;
     /**
-     * 广播区域范围直径(灯塔默认直径)
+     *这里直径为5,即4X4 16格
      */
     public static int DEFAULT_AOI_Diameter = 5;
     /**
-     * 区域宽度
+     * 九宫格算法场景区域宽度
      */
     public static int AREA_WIDTH = WIDTH / DEFAULT_AOI_Diameter;
     /**
-     * 区域高度
+     * 九宫格算法场景区域高度
      */
     public static int AREA_HEIGHT = HEIGHT / DEFAULT_AOI_Diameter;
     

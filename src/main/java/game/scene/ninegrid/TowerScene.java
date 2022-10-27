@@ -1,25 +1,40 @@
-package game.scene;
+package game.scene.ninegrid;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import game.scene.AbstractScene;
+import game.scene.SceneConst;
 import game.scene.obj.Position;
 import game.scene.obj.SceneObject;
 
 /**
- * AOI管理器 处理场景视野区域相关逻辑
+ * 灯塔算法场景
  * 
  * @author WinkeyZhao
  *
  */
-public class AoiManager {
-    private static Logger LOG = LoggerFactory.getLogger(AoiManager.class);
+public class TowerScene extends AbstractScene {
+    private static Logger LOG = LoggerFactory.getLogger(TowerScene.class);
 
-    private AoiManager() {
-    };
+    public HashMap<Integer, Area> areas = new HashMap<>();
+
+    public TowerScene(int mapWidth, int mapHeight) {
+	super(mapWidth, mapHeight);
+    }
+
+    @Override
+    public void onEnter(SceneObject sceneObject) {
+	// 目标区域添加对象
+	Area targetArea = getArea(sceneObject.position);
+	targetArea.addMapObj(sceneObject);
+	// TODO 通知 sceneObject 展现targetAoi 中所有对象玩家出现
+	Set<Area> targetAoi = targetArea.getRoundAreas(this);
+    }
 
     /**
      * 处理更新场景对象坐标,如果区域有变化,继续处理区域变化逻辑
@@ -27,6 +42,7 @@ public class AoiManager {
      * @param obj
      * @param targetPos
      */
+    @Override
     public void sceneObjPositionUp(SceneObject obj, Position targetPos) {
 	// 当前坐标
 	Position sourcePosition = obj.position;
@@ -45,22 +61,24 @@ public class AoiManager {
      * @param sourcePosition 上一个坐标
      */
     public void changeArea(SceneObject sceneObject, Position sourcePosition) {
-	Scene scene = sceneObject.currentScene;
-	Area sourceArea = getArea(sourcePosition, scene);
+	Area sourceArea = getArea(sourcePosition);
 	// 源区域移除对象
 	removeSceneArea(sceneObject, sourceArea);
 	// 目标区域添加对象
-	Area targetArea = getArea(sceneObject.position, scene);
+	Area targetArea = getArea(sceneObject.position);
 	targetArea.addMapObj(sceneObject);
 
+	//查找观察者的过程,灯塔场景直接获取
+	
 	// 源区域AOI
-	Set<Area> sourceAoi = sourceArea.getRoundAreas(scene);
+	Set<Area> sourceAoi = sourceArea.getRoundAreas(this);
 	// 目标区域AOI
-	Set<Area> targetAoi = targetArea.getRoundAreas(scene);
+	Set<Area> targetAoi = targetArea.getRoundAreas(this);
 	Set<Area> disappearAreas = new HashSet<>(sourceAoi);
 	Set<Area> appearAreas = new HashSet<>(targetAoi);
+	
 	disappearAreas.removeAll(appearAreas);// 已经消失的视野区域
-	appearAreas.removeAll(disappearAreas);// 新增的视野区域
+	appearAreas.removeAll(sourceAoi);// 新增的视野区域
 
 	// TODO 通知disappearAreas的玩家 sceneObject消失
 	// TODO 通知 appearAreas的玩家 sceneObject出现
@@ -68,11 +86,6 @@ public class AoiManager {
 	// TODO 通知 sceneObject 展现appearAreas 中所有对象
 	// TODO 通知 sceneObject 移除disappearAreas 中所有对象
     }
-
-    public void stopRunning(SceneObject sceneObj) {
-	// TODO 广播一下
-    }
-
     /**
      * 移除指定场景区域的对象
      *
@@ -83,7 +96,7 @@ public class AoiManager {
 	// 原来区域移除对象,如果失败,则全区域查找移除
 	if (!sourceArea.removeMapObj(sceneObject)) {
 	    Area otherArea = null;
-	    for (Area area : sceneObject.currentScene.areas.values()) {
+	    for (Area area : this.areas.values()) {
 		for (SceneObject sceneObj : area.getMapKeyObjs(sceneObject.sceneObjType).values()) {
 		    if (sceneObj.id == sceneObject.id) {
 			otherArea = area;
@@ -100,44 +113,33 @@ public class AoiManager {
 	}
     }
 
-    /**
-     * 获取场景中的区域 懒加载
-     * 
-     * @param areaId
-     * @param scene
-     * @return
-     */
-    public Area getArea(Position position, Scene scene) {
-	int areaId = getAreaId(position);
-	Area area = scene.areas.get(areaId);
-	if (area == null && areaId > 0) {
-	    area = new Area(areaId);
-	    scene.areas.put(areaId, area);
-	}
-	return area;
-    }
-
-    private boolean isSameArea(Position sourcePos, Position targetPos) {
+    public boolean isSameArea(Position sourcePos, Position targetPos) {
 	return getAreaId(sourcePos) == getAreaId(targetPos);
     }
 
-    /**
-     * 根据坐标位置得到位置所在的区域id
-     * 
-     * @param position
-     * @return
-     */
-    private int getAreaId(Position position) {
+    public int getAreaId(Position position) {
 	int areaX = (int) (position.x / SceneConst.AREA_WIDTH) + 1;
 	int areaY = (int) (position.y / SceneConst.AREA_HEIGHT) + 1;
 	return areaX * 1000 + areaY;// 得到一个区域唯一的id
     }
 
-    public static AoiManager getIns() {
-	return InstanceHolder.manager;
+    public Area getArea(Position position) {
+	int areaId = getAreaId(position);
+	Area area = areas.get(areaId);
+	if (area == null && areaId > 0) {
+	    area = new Area(areaId);
+	    areas.put(areaId, area);
+	}
+	return area;
+    }
+    public Area getArea(int areaId) {
+	Area area = areas.get(areaId);
+	if (area == null && areaId > 0) {
+	    area = new Area(areaId);
+	    areas.put(areaId, area);
+	}
+	return area;
     }
 
-    private static class InstanceHolder {
-	private static AoiManager manager = new AoiManager();
-    }
+
 }
