@@ -52,8 +52,15 @@ public class SceneManager {
 	// 不同aoi算法的场景对应处理
 	scene.onEnter(sceneObject);
     }
+    
+    public void quitScene(SceneObject sceneObject) {
+	AbstractScene currentScene = sceneObject.currentScene;
+	currentScene.removeSceneObj(sceneObject);
+	currentScene.onQuit(sceneObject);
+    }
 
     public void stopRunning(SceneObject sceneObj) {
+	sceneObj.currentScene.removeRunObj(sceneObj);
 	// TODO 广播一下
     }
 

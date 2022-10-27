@@ -53,6 +53,20 @@ public class VirtualTowerScene extends AbstractScene {
     }
 
     @Override
+    public void onQuit(SceneObject sceneObject) {
+	// 计算出区域id
+	long areaId = getAreaId(sceneObject.position);
+	// 在区域中移除自己
+	AoiObject aoiObject = aoiTable.remove(areaId, sceneObject.id);
+	if (aoiObject != null) {
+	    // 通知这些区域内的玩家移除sceneObject
+	    aoiObject.aoiAreaList.forEach(areaIds -> {
+
+	    });
+	}
+    }
+
+    @Override
     public void sceneObjPositionUp(SceneObject obj, Position targetPos) {
 	long areaId = getAreaId(obj.position);
 	long targetAreaId = getAreaId(targetPos);

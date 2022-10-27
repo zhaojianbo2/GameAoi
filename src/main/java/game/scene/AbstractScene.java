@@ -24,13 +24,22 @@ public abstract class AbstractScene {
 	this.areaWidthCount = (int) Math.ceil(1.0 * mapWidth / SceneConst.AREA_WIDTH);
 	this.areaHeightCount = (int) Math.ceil(1.0 * mapHeight / SceneConst.AREA_HEIGHT);
     }
-    
+
     public void addSceneObj(SceneObject sceneObj) {
 	objsTable.put(sceneObj.sceneObjType, sceneObj.id, sceneObj);
     }
 
+    public void removeSceneObj(SceneObject sceneObj) {
+	objsTable.remove(sceneObj.sceneObjType, sceneObj.id);
+	runObjsTable.remove(sceneObj.sceneObjType, sceneObj.id);
+    }
+
     public void addRunObj(SceneObject sceneObj) {
 	runObjsTable.put(sceneObj.sceneObjType, sceneObj.id, sceneObj);
+    }
+
+    public void removeRunObj(SceneObject sceneObj) {
+	runObjsTable.remove(sceneObj.sceneObjType, sceneObj.id);
     }
 
     /**
@@ -42,6 +51,10 @@ public abstract class AbstractScene {
     public Collection<SceneObject> getMapRunObjs() {
 	return runObjsTable.values();
     }
+
     public abstract void onEnter(SceneObject sceneObject);
+
+    public abstract void onQuit(SceneObject sceneObject);
+
     public abstract void sceneObjPositionUp(SceneObject obj, Position targetPos);
 }

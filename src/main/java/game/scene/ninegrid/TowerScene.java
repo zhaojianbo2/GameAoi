@@ -36,6 +36,14 @@ public class TowerScene extends AbstractScene {
 	Set<Area> targetAoi = targetArea.getRoundAreas(this);
     }
 
+    @Override
+    public void onQuit(SceneObject sceneObject) {
+	Area sceneObjectArea = getArea(sceneObject.position);
+	removeSceneArea(sceneObject, sceneObjectArea);
+	
+	//通知sceneObjectArea Aoi sceneObject消失
+    }
+
     /**
      * 处理更新场景对象坐标,如果区域有变化,继续处理区域变化逻辑
      * 
@@ -68,15 +76,15 @@ public class TowerScene extends AbstractScene {
 	Area targetArea = getArea(sceneObject.position);
 	targetArea.addMapObj(sceneObject);
 
-	//查找观察者的过程,灯塔场景直接获取
-	
+	// 查找观察者的过程,灯塔场景直接获取
+
 	// 源区域AOI
 	Set<Area> sourceAoi = sourceArea.getRoundAreas(this);
 	// 目标区域AOI
 	Set<Area> targetAoi = targetArea.getRoundAreas(this);
 	Set<Area> disappearAreas = new HashSet<>(sourceAoi);
 	Set<Area> appearAreas = new HashSet<>(targetAoi);
-	
+
 	disappearAreas.removeAll(appearAreas);// 已经消失的视野区域
 	appearAreas.removeAll(sourceAoi);// 新增的视野区域
 
@@ -86,6 +94,7 @@ public class TowerScene extends AbstractScene {
 	// TODO 通知 sceneObject 展现appearAreas 中所有对象
 	// TODO 通知 sceneObject 移除disappearAreas 中所有对象
     }
+
     /**
      * 移除指定场景区域的对象
      *
@@ -132,6 +141,7 @@ public class TowerScene extends AbstractScene {
 	}
 	return area;
     }
+
     public Area getArea(int areaId) {
 	Area area = areas.get(areaId);
 	if (area == null && areaId > 0) {
@@ -140,6 +150,5 @@ public class TowerScene extends AbstractScene {
 	}
 	return area;
     }
-
 
 }
