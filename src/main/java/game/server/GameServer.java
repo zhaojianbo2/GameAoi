@@ -1,12 +1,29 @@
 package game.server;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import game.handler.IMessageHandler;
+import game.handler.LoginMsgHandler;
 import game.net.BaseTcpServer;
+import game.net.ExternalTcpDecoder;
+import game.net.ExternalTcpEncoder;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.ByteToMessageDecoder;
-import io.netty.handler.codec.json.JsonObjectDecoder;
+import io.netty.handler.codec.MessageToByteEncoder;
 
 public class GameServer extends BaseTcpServer {
 
+    private final Map<Integer,IMessageHandler> handlerMap;
+    public GameServer() {
+	handlerMap =  new HashMap<>();
+	handlerMap.put(1001, new LoginMsgHandler());
+    }
+    @Override
+    public void start(int port, int idleTime) throws Exception {
+        super.start(port, idleTime);
+    }
+    
     @Override
     public ChannelInboundHandlerAdapter getBusinessHandler() {
 	return new ServerHandler();
@@ -14,8 +31,10 @@ public class GameServer extends BaseTcpServer {
 
     @Override
     public ByteToMessageDecoder getTcpDecoder() {
-	// json decoder
-	return new JsonObjectDecoder();
+	return new ExternalTcpDecoder(handlerMap);
     }
-
+    @Override
+    public MessageToByteEncoder<Object> getTcpEncoder() {
+        return new ExternalTcpEncoder();
+    }
 }

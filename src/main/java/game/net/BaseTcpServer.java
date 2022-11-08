@@ -14,6 +14,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.ByteToMessageDecoder;
+import io.netty.handler.codec.MessageToByteEncoder;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.internal.SystemPropertyUtil;
@@ -79,6 +80,7 @@ public abstract class BaseTcpServer {
 			    socketChannel.pipeline().addLast("IdleChecker", new IdleStateHandler(idleTime, 0, 0));
 			}
 			socketChannel.pipeline().addLast("Decoder", getTcpDecoder());
+			 socketChannel.pipeline().addLast("Encoder", getTcpEncoder());
 			socketChannel.pipeline().addLast("BusinessHandler", businessHandler);
 		    }
 		});
@@ -156,7 +158,7 @@ public abstract class BaseTcpServer {
     public abstract ChannelInboundHandlerAdapter getBusinessHandler();
 
     public abstract ByteToMessageDecoder getTcpDecoder();
-
+    public abstract MessageToByteEncoder<Object> getTcpEncoder();
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
     public InetSocketAddress socketAddress;

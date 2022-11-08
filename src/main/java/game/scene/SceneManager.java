@@ -3,7 +3,6 @@ package game.scene;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import game.scene.ninegrid.TowerScene;
 import game.scene.obj.Position;
