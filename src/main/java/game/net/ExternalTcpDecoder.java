@@ -20,13 +20,15 @@ import game.handler.IMessageHandler;
  * 外部TCP协议解码
  */
 public class ExternalTcpDecoder extends ByteToMessageDecoder {
+
     private final Logger LOGGER = LoggerFactory.getLogger(ExternalTcpDecoder.class);
     private static int MAX_SIZE = 10 * 1024;
-    private Map<Integer,IMessageHandler> handlerMap = new HashMap<>();
+    private Map<Integer, IMessageHandler> handlerMap = new HashMap<>();
 
-    public ExternalTcpDecoder(Map<Integer,IMessageHandler> handlerMap) {
-	this.handlerMap = handlerMap;
+    public ExternalTcpDecoder(Map<Integer, IMessageHandler> handlerMap) {
+        this.handlerMap = handlerMap;
     }
+
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) {
         try {
@@ -50,8 +52,8 @@ public class ExternalTcpDecoder extends ByteToMessageDecoder {
             // 读取指定长度的字节数
             byte[] body = new byte[length - 4];
             in.readBytes(body);
-            if(handlerMap.containsKey(msgId)) {
-        	handlerMap.get(msgId).handMsg(ctx, body);
+            if (handlerMap.containsKey(msgId)) {
+                handlerMap.get(msgId).handMsg(ctx, body);
             }
         } catch (Exception e) {
             LOGGER.error("decoder消息解析错误!!!!!!");

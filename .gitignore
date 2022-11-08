@@ -6,3 +6,5 @@
 */scriptBin
 /target
 /logs
+/.idea
+/*.iml
