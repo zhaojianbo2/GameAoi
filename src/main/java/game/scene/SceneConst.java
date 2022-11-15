@@ -26,4 +26,6 @@ public class SceneConst {
      * 移动速度
      */
     public static int MOVE_SPEED = 100;
+
+    public static int RES_OBJ_INFO_MSG = 2001;
 }

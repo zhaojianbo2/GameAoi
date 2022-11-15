@@ -6,6 +6,7 @@ import java.util.List;
 import game.scene.AbstractScene;
 
 public abstract class SceneObject {
+    public int modelId;
     // 对象唯一id
     public long id;
     // 当前所在场景引用
