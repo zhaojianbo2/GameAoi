@@ -115,12 +115,12 @@ public class Area {
         int maxHeight = scene.areaHeightCount;
         for (int i = 0; i < aoiDiameter; i++) {
             int temAreaY = startY + i;
-            if (temAreaY < 0 || temAreaY >= maxHeight) {
+            if (temAreaY <= 0 || temAreaY >= maxHeight) {
                 continue;
             }
             for (int j = 0; j < aoiDiameter; j++) {
                 int temAreaX = startX + j;
-                if (temAreaX < 0 || temAreaX >= maxWidth) {
+                if (temAreaX <= 0 || temAreaX >= maxWidth) {
                     continue;
                 }
                 int tempAreaId = temAreaX * 1000 + temAreaY;

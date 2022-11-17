@@ -42,7 +42,7 @@ public class VirtualTowerScene extends AbstractScene {
     }
 
     @Override
-    public void onEnter(SceneObject sceneObject) {
+    public void onEnter(SceneObject sceneObject,Position position) {
 	// 计算出区域id
 	long areaId = getAreaId(sceneObject.position);
 	// 初始化AoiObject

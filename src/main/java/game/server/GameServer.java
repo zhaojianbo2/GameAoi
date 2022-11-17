@@ -1,6 +1,9 @@
 package game.server;
 
 import game.handler.PingMsgHandler;
+import game.handler.ReqEnterSceneHandler;
+import game.handler.RunMsgHandler;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,6 +24,8 @@ public class GameServer extends BaseTcpServer {
         handlerMap = new HashMap<>();
         handlerMap.put(100, new LoginMsgHandler());
         handlerMap.put(102, new PingMsgHandler());
+        handlerMap.put(1001, new ReqEnterSceneHandler());
+        handlerMap.put(1003, new RunMsgHandler());
     }
 
     @Override
