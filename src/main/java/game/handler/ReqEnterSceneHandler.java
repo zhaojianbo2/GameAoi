@@ -25,7 +25,7 @@ public class ReqEnterSceneHandler implements IMessageHandler{
 	try {
 	    content = new String(data,"UTF-8");
 	    ReqEnterSceneMsg msg = JSON.parseObject(content, ReqEnterSceneMsg.class);
-	    SceneManager.getIns().enterScene(player,msg.x,msg.y);
+	    SceneManager.getIns().enterScene(player,75,75);
 	} catch (UnsupportedEncodingException e) {
 	    e.printStackTrace();
 	}

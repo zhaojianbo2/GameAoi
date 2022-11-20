@@ -33,7 +33,7 @@ public class TowerScene extends AbstractScene {
     @Override
     public void onEnter(SceneObject sceneObject,Position position) {
 	sceneObject.position = new Position(-100000, -100000);
-	sceneObjPositionUp(sceneObject, position);
+	sceneObjPositionUp(sceneObject, position,true);
     }
 
     @Override
@@ -52,13 +52,13 @@ public class TowerScene extends AbstractScene {
      * @param targetPos
      */
     @Override
-    public void sceneObjPositionUp(SceneObject obj, Position targetPos) {
+    public void sceneObjPositionUp(SceneObject obj, Position targetPos,boolean includeSelf) {
 	// 当前坐标
-	Position sourcePosition = obj.position;
+	Position sourcePosition = new Position(obj.position.x,obj.position.y);
 	obj.position = targetPos;
 	// 是否区域改变
 	if (!isSameArea(sourcePosition, targetPos)) {
-	    changeArea(obj, sourcePosition);
+	    changeArea(obj, sourcePosition,includeSelf);
 	}
     }
 
@@ -68,7 +68,7 @@ public class TowerScene extends AbstractScene {
      * @param sceneObject    已经设置了新坐标的对象
      * @param sourcePosition 上一个坐标
      */
-    public void changeArea(SceneObject sceneObject, Position sourcePosition) {
+    public void changeArea(SceneObject sceneObject, Position sourcePosition,boolean includeSelf) {
 	Area sourceArea = getArea(sourcePosition);
 	if (sourceArea != null) {
 	    // 源区域移除对象
@@ -93,7 +93,7 @@ public class TowerScene extends AbstractScene {
 	appearAreas.removeAll(sourceAoi);// 新增的视野区域
 
 	// AOI通知
-	notifyAoiAppear(sceneObject, appearAreas);
+	notifyAoiAppear(sceneObject, appearAreas,includeSelf);
 	notifyAoiDisAppear(sceneObject, disappearAreas);
 	if (sceneObject instanceof Player) {
 	    Player player = (Player) sceneObject;
@@ -134,15 +134,16 @@ public class TowerScene extends AbstractScene {
     }
 
     public int getAreaId(Position position) {
-	int areaX = (int) (position.x / SceneConst.AREA_WIDTH) + 1;
-	int areaY = (int) (position.y / SceneConst.AREA_HEIGHT) + 1;
-	return areaX * 1000 + areaY;// 得到一个区域唯一的id
+
+	   int areaX = (int) (position.x / SceneConst.AREA_WIDTH);
+			int areaY = (int) (position.y / SceneConst.AREA_HEIGHT);
+	return areaX<<16|areaY;// 得到一个区域唯一的id
     }
 
     public Area getArea(Position position) {
 	int areaId = getAreaId(position);
 	Area area = areas.get(areaId);
-	if (area == null && areaId > 0) {
+	if (area == null ) {
 	    area = new Area(areaId);
 	    areas.put(areaId, area);
 	}
@@ -151,7 +152,7 @@ public class TowerScene extends AbstractScene {
 
     public Area getArea(int areaId) {
 	Area area = areas.get(areaId);
-	if (area == null && areaId > 0) {
+	if (area == null ) {
 	    area = new Area(areaId);
 	    areas.put(areaId, area);
 	}

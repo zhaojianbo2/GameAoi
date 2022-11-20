@@ -60,7 +60,6 @@ public abstract class AbstractScene {
     /**
      * 根据类型获取地图中的场景对象
      *
-     * @param type
      * @return
      */
     public Collection<SceneObject> getMapRunObjs() {
@@ -68,10 +67,15 @@ public abstract class AbstractScene {
     }
 
     // 通知appearAreas sceneObject出现
-    public void notifyAoiAppear(SceneObject sceneObject, Set<Area> appearAreas) {
+    public void notifyAoiAppear(SceneObject sceneObject, Set<Area> appearAreas,boolean includeSelf) {
 	for (Area area : appearAreas) {
 	    Collection<Player> players = area.getMapObjs(SceneObjType.PLAYER);
 	    for (Player player : players) {
+	    	if(!includeSelf){
+					if(player.id == sceneObject.id){
+						continue;
+					}
+				}
 		ResSceneObjShowMsg msg = new ResSceneObjShowMsg();
 		List<SceneObjInfo> objInfoList = new ArrayList<>();
 		objInfoList.add(createObjInfo(sceneObject));
@@ -86,12 +90,11 @@ public abstract class AbstractScene {
 	for (Area area : disAppears) {
 	    Collection<Player> players = area.getMapObjs(SceneObjType.PLAYER);
 	    for (Player player : players) {
-		if(player.id ==sceneObject.id ) {
-		    continue;
-		}
+				if(player.id == sceneObject.id){
+					continue;
+				}
 		ResSceneObjDisMsg msg = new ResSceneObjDisMsg();
-		List<Long> disAppearList = new ArrayList<>();
-		disAppearList.add(sceneObject.id);
+		msg.disAppearList.add(sceneObject.id);
 		player.ctx.channel().writeAndFlush(new SMessage(msg.getMsgId(), JSON.toJSONBytes(msg)));
 	    }
 	}
@@ -119,6 +122,9 @@ public abstract class AbstractScene {
 	for (Area area : disAppears) {
 	    List<SceneObject> objs = area.getMapObjs();
 	    for (SceneObject sceneObj : objs) {
+				if(player.id == sceneObj.id){
+					continue;
+				}
 		msg.disAppearList.add(sceneObj.id);
 	    }
 	}
@@ -142,15 +148,13 @@ public abstract class AbstractScene {
     private SceneObjInfo createObjInfo(SceneObject sceneObject) {
 	SceneObjInfo info = new SceneObjInfo();
 	PointInfo position = new PointInfo();
-	position.x = sceneObject.position.x;
-	position.y = sceneObject.position.y;
+	position.x = (int)sceneObject.position.x;
+	position.y = (int)sceneObject.position.y;
 	info.objId = sceneObject.id;
 	info.modelId = sceneObject.modelId;
 	info.currentPosition = position;
 	if (sceneObject.runningRoads.size() > 0) {
-	    info.roads = sceneObject.runningRoads.stream().map(e -> {
-		return new PointInfo(e.x, e.y);
-	    }).collect(Collectors.toList());
+	    info.roads = sceneObject.runningRoads.stream().map(e -> new PointInfo((int)e.x,(int) e.y)).collect(Collectors.toList());
 	}
 	return info;
     }
@@ -159,5 +163,5 @@ public abstract class AbstractScene {
 
     public abstract void onQuit(SceneObject sceneObject);
 
-    public abstract void sceneObjPositionUp(SceneObject obj, Position targetPos);
+    public abstract void sceneObjPositionUp(SceneObject obj, Position targetPos,boolean includeSelf);
 }

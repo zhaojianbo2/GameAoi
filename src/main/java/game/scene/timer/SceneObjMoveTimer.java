@@ -9,6 +9,8 @@ import game.scene.SceneManager;
 import game.scene.obj.Position;
 import game.scene.obj.SceneObject;
 import game.scene.util.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 场景对象移动timer,以移动timer间隔去驱动位置更新,timer极限间隔为每帧的时间
@@ -16,7 +18,7 @@ import game.scene.util.Utils;
  * @author WinkeyZhao
  */
 public class SceneObjMoveTimer implements Runnable {
-
+    private static Logger LOG = LoggerFactory.getLogger(SceneObjMoveTimer.class);
     // timer服务的场景
     private AbstractScene scene;
 
@@ -35,34 +37,37 @@ public class SceneObjMoveTimer implements Runnable {
                 itr.remove();
                 continue;
             }
-            long currtime = System.currentTimeMillis();
+            long curTime = System.currentTimeMillis();
             // 跑动间隔时间
-            long time = currtime - sceneObj.preStepTime;
+            long time = curTime - sceneObj.preStepTime;
+            sceneObj.preStepTime = curTime;
             // 玩家原来坐标
             Position old = sceneObj.position;
             // 每次timer能够移动的距离
-            int moveDis = (int) ((time * SceneConst.MOVE_SPEED) / 1000);
+            double moveDis = time * ((double)SceneConst.MOVE_SPEED/1000d);
             // 预判断当前到下一拐点的距离
             Position nextPosition = roads.get(0);
-            int nextDistance = Utils.countDistance(old, nextPosition);
+            double nextDistance = Utils.countDistance(old, nextPosition);
             // 如果经过了拐点,则弹出
-            while (moveDis > nextDistance) {
+            Position currentPosition = null;
+            while (moveDis >= nextDistance) {
                 nextPosition = roads.remove(0);
                 moveDis -= nextDistance;
                 sceneObj.position = nextPosition;
                 // 没有拐点了则跑步完成
                 if (roads.isEmpty()) {
                     itr.remove();
+//                    currentPosition = Utils
+//                        .countPosition(sceneObj.position, nextPosition, moveDis);
                     break;
                 }
                 nextPosition = roads.get(0);
                 nextDistance = Utils.countDistance(sceneObj.position, nextPosition);
             }
-
-            // 当前的最新位置点
-            Position currentPosition = Utils
+            currentPosition = Utils
                 .countPosition(sceneObj.position, nextPosition, moveDis);
-            scene.sceneObjPositionUp(sceneObj, currentPosition);
+            // 当前的最新位置点
+            scene.sceneObjPositionUp(sceneObj, currentPosition,false);
             if (roads.isEmpty()) {
                 SceneManager.getIns().stopRunning(sceneObj);
             }

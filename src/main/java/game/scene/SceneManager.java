@@ -1,10 +1,17 @@
 package game.scene;
 
+import com.alibaba.fastjson.JSON;
 import game.scene.obj.Monster;
 import game.scene.obj.SceneObjType;
+import game.scene.timer.SceneObjMoveTimer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import game.scene.msg.info.PointInfo;
@@ -21,24 +28,29 @@ import game.scene.obj.SceneObject;
 public class SceneManager {
 
     private Map<Long, AbstractScene> sceneMap = new HashMap<>();
-
     private SceneManager() {
         // 暂且设置大一点的地图
-        AbstractScene scene = new TowerScene(300, 600);
+        AbstractScene scene = new TowerScene(1000, 1000);
         sceneMap.put(1000l, scene);
+        ScheduledExecutorService s = new ScheduledThreadPoolExecutor(1);
+        s.scheduleAtFixedRate(new SceneObjMoveTimer(scene),500,500, TimeUnit.MILLISECONDS);
         init(scene);
     }
 
     private void init(AbstractScene scene){
+        Random random = new Random();
         //1 ostrich 2 bear 3 buffalo
-        Monster monster = new Monster();
-        monster.modelId = 1;
-        monster.id = System.currentTimeMillis();
-        Position position = new Position(-80,90);
-        monster.position = position;
-        monster.sceneObjType = SceneObjType.MONSTER;
-        monster.currentScene = scene;
-        enterScene(monster,20,0);
+        for(int i = 0;i<100;i++){
+
+            int x = random.nextInt(150)+1;
+            int y = random.nextInt(150)+1;
+            Monster monster = new Monster();
+            monster.modelId = random.nextInt(4)+1;
+            monster.id = System.currentTimeMillis()+i;
+            monster.sceneObjType = SceneObjType.MONSTER;
+            monster.currentScene = scene;
+            enterScene(monster,x,y);
+        }
     }
 
     /**
@@ -49,13 +61,14 @@ public class SceneManager {
      */
     public void sceneObjRun(SceneObject sceneObject, List<PointInfo> roads) {
         // 同步设置一下玩家坐标
-        Position sourcePosition = sceneObject.position;
+        PointInfo pInfo = roads.get(0);
+        Position currentPosition = new Position(pInfo.x,pInfo.y);
         AbstractScene scene = sceneObject.currentScene;
-        scene.sceneObjPositionUp(sceneObject, sourcePosition);
+        //scene.sceneObjPositionUp(sceneObject, currentPosition,false);
         // 设置走动开始时间
         sceneObject.preStepTime = System.currentTimeMillis();
-        sceneObject.runningRoads.clear();
-        sceneObject.runningRoads = roads.stream().map(e->{return new Position(e.x,e.y);}).collect(Collectors.toList());
+        sceneObject.runningRoads = roads.stream().map(e-> new Position(e.x,e.y)).collect(Collectors.toList());
+
         sceneObject.currentScene.addRunObj(sceneObject);
         //广播开始走动
         ResSceneObjRunMsg msg = new ResSceneObjRunMsg();

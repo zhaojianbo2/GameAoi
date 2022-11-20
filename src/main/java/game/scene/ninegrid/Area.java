@@ -77,7 +77,6 @@ public class Area {
     }
 
     /**
-     * @param round
      * @return
      */
     public Set<Area> getRoundAreas(TowerScene scene) {
@@ -106,24 +105,24 @@ public class Area {
     private void initRoundAreas(TowerScene scene) {
         int aoiDiameter = SceneConst.DEFAULT_AOI_Diameter;
         int radius = aoiDiameter / 2;
-        int areaX = areaId / 1000;
-        int areaY = areaId % 1000;
+        int areaX =  areaId>>16;
+        int areaY = areaId&(0xffff);
         int startX = areaX - radius;
         int startY = areaY - radius;
 
         int maxWidth = scene.areaWidthCount;
         int maxHeight = scene.areaHeightCount;
-        for (int i = 0; i < aoiDiameter; i++) {
+        for (int i = 0; i <= radius*2; i++) {
             int temAreaY = startY + i;
-            if (temAreaY <= 0 || temAreaY >= maxHeight) {
+            if (temAreaY < 0 || temAreaY > maxHeight) {
                 continue;
             }
-            for (int j = 0; j < aoiDiameter; j++) {
+            for (int j = 0; j <= radius*2; j++) {
                 int temAreaX = startX + j;
-                if (temAreaX <= 0 || temAreaX >= maxWidth) {
+                if (temAreaX < 0 || temAreaX > maxWidth) {
                     continue;
                 }
-                int tempAreaId = temAreaX * 1000 + temAreaY;
+                int tempAreaId = temAreaX<<16|temAreaY;
                 Area area = scene.getArea(tempAreaId);
                 roundAreas.add(area);
             }

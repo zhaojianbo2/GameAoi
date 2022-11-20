@@ -23,7 +23,7 @@ import game.scene.obj.SceneObject;
  * @author WinkeyZhao
  *
  */
-public class VirtualTowerScene extends AbstractScene {
+public class VirtualTowerScene extends AbstractScene{
     private static Logger LOG = LoggerFactory.getLogger(VirtualTowerScene.class);
 
     private Table<Long, Long, AoiObject> aoiTable = HashBasedTable.create();
@@ -67,7 +67,7 @@ public class VirtualTowerScene extends AbstractScene {
     }
 
     @Override
-    public void sceneObjPositionUp(SceneObject obj, Position targetPos) {
+    public void sceneObjPositionUp(SceneObject obj, Position targetPos,boolean includeSelf) {
 	long areaId = getAreaId(obj.position);
 	long targetAreaId = getAreaId(targetPos);
 	// 区域改变

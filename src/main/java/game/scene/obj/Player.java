@@ -11,7 +11,7 @@ public class Player extends SceneObject {
         this.ctx = ctx;
         this.modelId = SceneConst.playerModelId;
         this.position = new Position(100, 100);
-        this.id = System.currentTimeMillis() / 1000l;
+        this.id = System.currentTimeMillis() ;
         this.sceneObjType = SceneObjType.PLAYER;
     }
 }
